@@ -21,6 +21,6 @@ if __name__ == "__main__":
 
     schedule.every().day.at(scheduled_time).do(delayed_entry)
     print("Waiting for " + scheduled_time + "...")
-    while len(schedule.get_jobs()) > 0:
+    while True:
         schedule.run_pending()
         time.sleep(1)

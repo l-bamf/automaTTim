@@ -165,7 +165,10 @@ def full_flow():
 
     # press the button!
     enter_button = driver.find_element(By.XPATH, "//*[text()='Enter!']")
-    # move_receipt(receipt_path)
+    enter_button.click()
+    move_receipt(receipt_path)
+    time.sleep(20)
+    driver.close()
 
 
 if __name__ == "__main__":
