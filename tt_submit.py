@@ -13,6 +13,7 @@ from selenium.webdriver.chrome.service import Service
 import time
 import pathlib
 import json
+from datetime import datetime
 
 from selenium.webdriver.support.select import Select
 
@@ -140,10 +141,11 @@ def enter_personal_details(driver):
 
 
 def move_receipt(receipt_path):
+    now = datetime.now()
+    now_str = now.strftime("%Y-%m-%d-%H.%M")
     file_name = receipt_path.split("\\")[-1]
-    new_path = str(pathlib.Path().resolve()) + "\\receipts\\used_receipts\\" + file_name
+    new_path = str(pathlib.Path().resolve()) + "\\receipts\\used_receipts\\" + now_str + "_" + file_name
     os.replace(receipt_path, new_path)
-
 
 def full_flow():
     global receipt_path
