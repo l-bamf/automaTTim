@@ -16,7 +16,6 @@ import json
 
 from selenium.webdriver.support.select import Select
 
-PHONE = '0499111222'
 product_options = {
     "original": "Tim Tam Original",
     "white": "Tim Tam White",
@@ -54,7 +53,9 @@ def pass_checklist(driver):
 def enter_product_details(driver):
     time.sleep(1)  # TODO: Use selenium best practice wait
     mobile_field = driver.find_element(By.ID, "mobile")
-    mobile_field.send_keys(PHONE)
+    with open("details.json") as json_file:
+        details = json.load(json_file)
+        mobile_field.send_keys(details["mobile"])
 
     product_select = Select(driver.find_element(By.ID, "what_did_you_purchase"))
     product_select.select_by_value(product_options["original"])

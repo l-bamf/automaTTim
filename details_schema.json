@@ -3,7 +3,7 @@
   "first_name": "John",
   "last_name": "Smith",
   "email": "john.smith@example.com.au",
-  "dob": "dd/MM/yyyy",
+  "dob": "ddMMyyyy",
   "country": "Australia",
   "st_address": "123 Example Lane",
   "postcode": "3000",
