@@ -50,7 +50,7 @@ def pass_checklist(driver):
             return True
 
 
-def enter_product_details(driver):
+def enter_product_details(driver) -> (bool, str):
     time.sleep(1)  # TODO: Use selenium best practice wait
     mobile_field = driver.find_element(By.ID, "mobile")
     with open("details.json") as json_file:
@@ -89,7 +89,7 @@ def enter_product_details(driver):
         print("Upload succeeded")
         upload_success = True
 
-    return upload_success
+    return upload_success, selected_receipt_path
 
 
 def enter_personal_details(driver):
@@ -138,7 +138,15 @@ def enter_personal_details(driver):
 
     return True
 
+
+def move_receipt(receipt_path):
+    file_name = receipt_path.split("\\")[-1]
+    new_path = str(pathlib.Path().resolve()) + "\\receipts\\used_receipts\\" + file_name
+    os.replace(receipt_path, new_path)
+
+
 def full_flow():
+    global receipt_path
     service = Service('chromedriver_win32/chromedriver.exe')
     driver = webdriver.Chrome(service=service)
     success = False
@@ -147,7 +155,8 @@ def full_flow():
         if not pass_checklist(driver):
             continue
 
-        if not enter_product_details(driver):
+        product_success, receipt_path = enter_product_details(driver)
+        if not product_success:
             continue
 
         success = enter_personal_details(driver)
@@ -156,7 +165,7 @@ def full_flow():
 
     # press the button!
     enter_button = driver.find_element(By.XPATH, "//*[text()='Enter!']")
-    pass
+    # move_receipt(receipt_path)
 
 
 if __name__ == "__main__":

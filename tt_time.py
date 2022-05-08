@@ -1,3 +1,6 @@
+"""
+File schedules the form submission for a certain time in the future (once)
+"""
 import tt_submit
 import schedule
 import sys
