@@ -138,7 +138,9 @@ def enter_personal_details(driver):
 
     return True
 
-def full_flow(driver):
+def full_flow():
+    service = Service('chromedriver_win32/chromedriver.exe')
+    driver = webdriver.Chrome(service=service)
     success = False
     while not success:
         driver.get("https://www.timtam3wishes.com/enter")
@@ -156,10 +158,7 @@ def full_flow(driver):
     enter_button = driver.find_element(By.XPATH, "//*[text()='Enter!']")
     pass
 
-if __name__ == "__main__":
-    service = Service('chromedriver_win32/chromedriver.exe')
-    driver = webdriver.Chrome(service=service)
-    full_flow(driver)
 
-    # driver.close()
+if __name__ == "__main__":
+    full_flow()
 
