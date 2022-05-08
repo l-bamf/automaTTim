@@ -76,7 +76,7 @@ def enter_product_details(driver) -> (bool, str):
 
     file_input = driver.find_element(By.ID, "receipt_upload")
     file_input.send_keys(selected_receipt_path)
-    time.sleep(2)
+    time.sleep(5)
 
     upload_success = False
     try:
@@ -147,6 +147,7 @@ def move_receipt(receipt_path):
     new_path = str(pathlib.Path().resolve()) + "\\receipts\\used_receipts\\" + now_str + "_" + file_name
     os.replace(receipt_path, new_path)
 
+
 def full_flow():
     global receipt_path
     service = Service('chromedriver_win32/chromedriver.exe')
@@ -170,8 +171,8 @@ def full_flow():
     enter_button.click()
     move_receipt(receipt_path)
     time.sleep(20)
+    print("Form submitted")
     driver.close()
-
 
 if __name__ == "__main__":
     full_flow()
