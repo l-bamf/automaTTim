@@ -1,4 +1,4 @@
-# TimTam Automation
+# AutomaTTim
 Using my software skills for [evil](https://www.youtube.com/watch?v=MNt3-rX6pbo)...
 
 ## Premise
