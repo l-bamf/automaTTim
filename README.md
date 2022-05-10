@@ -22,5 +22,54 @@ to have a computer do it while I sleep.
 
 ![alt text](https://i.pinimg.com/736x/e8/e7/4d/e8e74d6f2218e8c7a0f138b9e2d6ff9a.jpg)
 
- 
+# Installation
+## Cloning
+The repository can be cloned to your local machine by running in command line. It can also be directly downloaded from
+GitHub/
 
+    git clone https://github.com/l-bamf/automaTTim
+## Dependencies
+#### Browser
+This project depends on Chrome being installed in the default directory. No action should be required for this.
+#### Python
+The Python files were written and tested with 3.10.4. [Install Python](https://www.python.org/downloads/)
+#### Python Libraries
+A couple libraries need to be installed
+
+    pip install selenium
+    pip install schedule
+#### Hardware
+I haven't tested the hardware requirements at all but from my reading the machine needs an internet connection
+and to run *not in sleep* until the selected time
+
+#### details.json
+Rename details_schema.json to details.json and fill in your relevant details in the same format.
+
+#### timtam3wishes.com
+I doubt this website will continue to be maintained, or even exist, after the promotional period ends (3/7/22)
+
+# Execution
+Before executing the script, put an image of your receipt into the receipts folder. Original should be left in the top
+receipts\ but other flavours should be put in their respective folder. For receipts with multiple products, it is fine
+to duplicate these as many times as were purchased, as far as I'm aware. Each entry requires and consumes one receipt file.
+
+## Instant submission
+If you wish to instantly submit the form with an (original) receipt run
+
+    python tt_sumbit
+    
+## Delayed submission
+This is the core use-case of delaying submission to a lonely time of night. This runs the submission once at the 
+next occurrence of the specified time.
+
+    python tt_time HH:MM
+    python tt_time 03:11
+
+## Specific flavours
+To apply with a specific flavour one needs to specify it as an argument in the command line
+
+    python tt_time HH:MM [flavour]
+    python tt_time 12:10 double
+    
+    python tt_submit [flavour]
+    python tt_submit double

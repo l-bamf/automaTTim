@@ -6,9 +6,18 @@ import schedule
 import sys
 import time
 
+product_options = {
+    "original": "Tim Tam Original",
+    "white": "Tim Tam White",
+    "dark": "Tim Tam Dark",
+    "double": "Tim Tam Double Coat",
+    "chewy-caramel": "Tim Tam Chewy Caramel",
+    "murray-caramel": "Tim Tam Murray River Salted Caramel"
+}
 
-def delayed_entry():
-    tt_submit.full_flow()
+
+def delayed_entry(type="original"):
+    tt_submit.full_flow(type)
     return schedule.CancelJob
 
 
@@ -19,7 +28,15 @@ if __name__ == "__main__":
     else:
         scheduled_time = "15:13"
 
-    schedule.every().day.at(scheduled_time).do(delayed_entry)
+    if len(sys.argv) > 2:
+        if sys.argv[2] in product_options:
+            schedule.every().day.at(scheduled_time).do(delayed_entry, type=sys.argv[2])
+        else:
+            print("Invalid product type as argument - must be one of: ")
+            print(product_options.keys())
+            exit()
+    else:
+        schedule.every().day.at(scheduled_time).do(delayed_entry)
     print("Waiting for " + scheduled_time + "...")
     while True:
         schedule.run_pending()

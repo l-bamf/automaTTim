@@ -7,13 +7,13 @@ import pprint
 import os
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
-from selenium.webdriver import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 import time
 import pathlib
 import json
 from datetime import datetime
+import sys
 
 from selenium.webdriver.support.select import Select
 
@@ -21,9 +21,9 @@ product_options = {
     "original": "Tim Tam Original",
     "white": "Tim Tam White",
     "dark": "Tim Tam Dark",
-    "double coat": "Time Tam Double Coat",
-    "chewy caramel": "Tim Tam Chewy Caramel",
-    "murray river caramel": "Tim Tam Murray River Salted Caramel"
+    "double": "Tim Tam Double Coat",
+    "chewy-caramel": "Tim Tam Chewy Caramel",
+    "murray-caramel": "Tim Tam Murray River Salted Caramel"
 }
 
 
@@ -51,7 +51,13 @@ def pass_checklist(driver):
             return True
 
 
-def enter_product_details(driver) -> (bool, str):
+def enter_product_details(driver, type) -> (bool, str):
+    """
+    Enter product details and upload correct file
+    :param driver:
+    :param type:
+    :return:
+    """
     time.sleep(1)  # TODO: Use selenium best practice wait
     mobile_field = driver.find_element(By.ID, "mobile")
     with open("details.json") as json_file:
@@ -59,7 +65,7 @@ def enter_product_details(driver) -> (bool, str):
         mobile_field.send_keys(details["mobile"])
 
     product_select = Select(driver.find_element(By.ID, "what_did_you_purchase"))
-    product_select.select_by_value(product_options["original"])
+    product_select.select_by_value(product_options[type])
 
     shop_select = Select(driver.find_element(By.ID, "where_did_you_make_the_purchase"))
     shop_select.select_by_value("Coles-1")
@@ -67,11 +73,16 @@ def enter_product_details(driver) -> (bool, str):
     terms_box = driver.find_element(By.ID, "terms")
     terms_box.click()
 
-    receipts = os.listdir("receipts")
+    receipt_directories = os.listdir("receipts")
+    parent_path = str(pathlib.Path().resolve()) + "\\receipts\\"
+    if type != "original" and type in receipt_directories:
+        receipt_directories = os.listdir("receipts\\" + type)
+        parent_path += type + "\\"
+
     selected_receipt_path = None
-    for receipt in receipts:
-        if receipt != ".gitignore":
-            selected_receipt_path = str(pathlib.Path().resolve()) + "\\receipts\\" + receipt
+    for receipt_dir in receipt_directories:
+        if receipt_dir != ".gitignore" and receipt_dir != "used_receipts":
+            selected_receipt_path = parent_path + receipt_dir
             break
 
     file_input = driver.find_element(By.ID, "receipt_upload")
@@ -94,6 +105,11 @@ def enter_product_details(driver) -> (bool, str):
 
 
 def enter_personal_details(driver):
+    """
+    Enter personal details if mobile number is unrecognised
+    :param driver:
+    :return:
+    """
     try:
         driver.find_element(By.XPATH, "//*[text()='Your Details']")
     except NoSuchElementException:
@@ -140,15 +156,27 @@ def enter_personal_details(driver):
     return True
 
 
-def move_receipt(receipt_path):
+def move_receipt(receipt_path, type):
+    """
+    Move used receipt into a discarded folder
+    :param receipt_path:
+    :param type:
+    :return:
+    """
     now = datetime.now()
+    parent_dir = str(pathlib.Path().resolve())
     now_str = now.strftime("%Y-%m-%d-%H.%M")
     file_name = receipt_path.split("\\")[-1]
-    new_path = str(pathlib.Path().resolve()) + "\\receipts\\used_receipts\\" + now_str + "_" + file_name
+    if type == "original":
+        new_path = str(pathlib.Path().resolve()) + "\\receipts\\used_receipts\\" + now_str + "_" + file_name
+    else:
+        folder_path = "\\receipts\\used_receipts\\" + type
+        os.makedirs(parent_dir + folder_path, exist_ok=True)
+        new_path = parent_dir + folder_path + "\\" + now_str + "_" + file_name
     os.replace(receipt_path, new_path)
 
 
-def full_flow():
+def full_flow(type="original"):
     global receipt_path
     service = Service('chromedriver_win32/chromedriver.exe')
     driver = webdriver.Chrome(service=service)
@@ -158,22 +186,29 @@ def full_flow():
         if not pass_checklist(driver):
             continue
 
-        product_success, receipt_path = enter_product_details(driver)
+        product_success, receipt_path = enter_product_details(driver, type)
         if not product_success:
             continue
 
         success = enter_personal_details(driver)
-
         time.sleep(2)
 
     # press the button!
     enter_button = driver.find_element(By.XPATH, "//*[text()='Enter!']")
     enter_button.click()
-    move_receipt(receipt_path)
+    move_receipt(receipt_path, type)
     time.sleep(20)
     print("Form submitted")
     driver.close()
 
 if __name__ == "__main__":
-    full_flow()
+    if len(sys.argv) > 1:
+        if sys.argv[1] in product_options:
+            full_flow(sys.argv[1])
+        else:
+            print("Invalid product type as argument - must be one of: ")
+            print(product_options.keys())
+            exit()
+    else:
+        full_flow()
 
