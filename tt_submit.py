@@ -182,22 +182,24 @@ def full_flow(type="original"):
     service = Service('chromedriver_win32/chromedriver.exe')
     driver = webdriver.Chrome(service=service)
     success = False
-    while not success:
+    attempts = 0
+    while not success and attempts < 10:
         driver.get("https://www.timtam3wishes.com/enter")
         if not pass_checklist(driver):
             continue
 
         product_success, receipt_path = enter_product_details(driver, type)
         if not product_success:
+            attempts += 1
             continue
 
         success = enter_personal_details(driver)
         time.sleep(2)
 
     # press the button!
-    # enter_button = driver.find_element(By.XPATH, "//*[text()='Enter!']")
-    # enter_button.click()
-    # move_receipt(receipt_path, type)
+    enter_button = driver.find_element(By.XPATH, "//*[text()='Enter!']")
+    enter_button.click()
+    move_receipt(receipt_path, type)
     time.sleep(20)
     print("Form submitted")
     driver.close()
