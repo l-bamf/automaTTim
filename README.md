@@ -56,20 +56,20 @@ to duplicate these as many times as were purchased, as far as I'm aware. Each en
 ## Instant submission
 If you wish to instantly submit the form with an (original) receipt run
 
-    python tt_sumbit
+    python tt_sumbit.py
     
 ## Delayed submission
 This is the core use-case of delaying submission to a lonely time of night. This runs the submission once at the 
 next occurrence of the specified time.
 
-    python tt_time HH:MM
-    python tt_time 03:11
+    python tt_time.py HH:MM
+    python tt_time.py 03:11
 
 ## Specific flavours
 To apply with a specific flavour one needs to specify it as an argument in the command line
 
-    python tt_time HH:MM [flavour]
-    python tt_time 12:10 double
+    python tt_time.py HH:MM [flavour]
+    python tt_time.py 12:10 double
     
-    python tt_submit [flavour]
-    python tt_submit double
+    python tt_submit.py [flavour]
+    python tt_submit.py double

@@ -14,6 +14,7 @@ import pathlib
 import json
 from datetime import datetime
 import sys
+import re
 
 from selenium.webdriver.support.select import Select
 
@@ -81,7 +82,7 @@ def enter_product_details(driver, type) -> (bool, str):
 
     selected_receipt_path = None
     for receipt_dir in receipt_directories:
-        if receipt_dir != ".gitignore" and receipt_dir != "used_receipts":
+        if re.search(".JPG", receipt_dir):
             selected_receipt_path = parent_path + receipt_dir
             break
 
@@ -194,9 +195,9 @@ def full_flow(type="original"):
         time.sleep(2)
 
     # press the button!
-    enter_button = driver.find_element(By.XPATH, "//*[text()='Enter!']")
-    enter_button.click()
-    move_receipt(receipt_path, type)
+    # enter_button = driver.find_element(By.XPATH, "//*[text()='Enter!']")
+    # enter_button.click()
+    # move_receipt(receipt_path, type)
     time.sleep(20)
     print("Form submitted")
     driver.close()

@@ -1,8 +1,9 @@
 # Ignore all img files in this directory
-*.jpg
+# *.jpg
+# *.jpeg
+# *.JPEG
+# *.png
+# *.PNG
+# *.PDF
+/**/*.JPG
 *.JPG
-*.jpeg
-*.JPEG
-*.png
-*.PNG
-*.PDF
