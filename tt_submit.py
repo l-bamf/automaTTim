@@ -27,6 +27,7 @@ product_options = {
     "murray-caramel": "Tim Tam Murray River Salted Caramel"
 }
 
+accepted_file_types = (".JPG", ".PDF", ".PNG", ".JPEG")
 
 def pass_checklist(driver):
     """
@@ -82,7 +83,7 @@ def enter_product_details(driver, type) -> (bool, str):
 
     selected_receipt_path = None
     for receipt_dir in receipt_directories:
-        if re.search(".JPG", receipt_dir):
+        if re.search("(.PNG|.JPG|.PDF|.JPEG)", receipt_dir.upper()):
             selected_receipt_path = parent_path + receipt_dir
             break
 
@@ -134,7 +135,7 @@ def enter_personal_details(driver):
     dob_input.send_keys(details["dob"])
 
     country_select = Select(driver.find_element(By.ID, "country"))
-    country_select.select_by_value(details["country"] + "-1")
+    country_select.select_by_value(details["country"])
 
     st_address = driver.find_element(By.ID, "address_line_1")
     st_address.send_keys(details["st_address"])
