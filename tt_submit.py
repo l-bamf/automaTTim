@@ -53,11 +53,10 @@ def pass_checklist(driver):
             return True
 
 
-def enter_product_details(driver, type) -> (bool, str):
+def enter_product_details(driver) -> (bool, str):
     """
     Enter product details and upload correct file
     :param driver:
-    :param type:
     :return:
     """
     time.sleep(1)  # TODO: Use selenium best practice wait
@@ -75,21 +74,22 @@ def enter_product_details(driver, type) -> (bool, str):
     terms_box = driver.find_element(By.ID, "terms")
     terms_box.click()
 
-    receipt_directories = os.listdir("receipts")
-    parent_path = str(pathlib.Path().resolve()) + "\\receipts\\"
-    if type != "original" and type in receipt_directories:
-        receipt_directories = os.listdir("receipts\\" + type)
-        parent_path += type + "\\"
-
+    flavours = os.listdir("receipts")
+    flavours.remove(".gitignore")
+    flavours.remove("used_receipts")
+    file_types_regex = "(.PNG|.JPG|.PDF|.JPEG)"
     selected_receipt_path = None
-    for receipt_dir in receipt_directories:
-        if re.search("(.PNG|.JPG|.PDF|.JPEG)", receipt_dir.upper()):
-            selected_receipt_path = parent_path + receipt_dir
+    for flavour in flavours:
+        sub_dirs = [dir for dir in os.listdir("receipts\\" + flavour)]
+        valid_receipts = [sub_dir for sub_dir in sub_dirs if re.search(file_types_regex, sub_dir.upper())]
+        if len(valid_receipts) >= 1:
+            parent_path = str(pathlib.Path().resolve()) + "\\receipts\\" + flavour + "\\"
+            selected_receipt_path = parent_path + valid_receipts.pop()
             break
 
     file_input = driver.find_element(By.ID, "receipt_upload")
     file_input.send_keys(selected_receipt_path)
-    time.sleep(5)
+    time.sleep(10)
 
     upload_success = False
     try:
@@ -158,27 +158,25 @@ def enter_personal_details(driver):
     return True
 
 
-def move_receipt(receipt_path, type):
+def move_receipt(receipt_path):
     """
     Move used receipt into a discarded folder
     :param receipt_path:
-    :param type:
     :return:
     """
     now = datetime.now()
     parent_dir = str(pathlib.Path().resolve())
     now_str = now.strftime("%Y-%m-%d-%H.%M")
     file_name = receipt_path.split("\\")[-1]
-    if type == "original":
-        new_path = str(pathlib.Path().resolve()) + "\\receipts\\used_receipts\\" + now_str + "_" + file_name
-    else:
-        folder_path = "\\receipts\\used_receipts\\" + type
-        os.makedirs(parent_dir + folder_path, exist_ok=True)
-        new_path = parent_dir + folder_path + "\\" + now_str + "_" + file_name
+    flavour = receipt_path.split("\\")[-2]
+
+    folder_path = "\\receipts\\used_receipts\\" + flavour
+    os.makedirs(parent_dir + folder_path, exist_ok=True)
+    new_path = parent_dir + folder_path + "\\" + now_str + "_" + file_name
     os.replace(receipt_path, new_path)
 
 
-def full_flow(type="original"):
+def full_flow():
     global receipt_path
     service = Service('chromedriver_win32/chromedriver.exe')
     driver = webdriver.Chrome(service=service)
@@ -189,7 +187,7 @@ def full_flow(type="original"):
         if not pass_checklist(driver):
             continue
 
-        product_success, receipt_path = enter_product_details(driver, type)
+        product_success, receipt_path = enter_product_details(driver)
         if not product_success:
             attempts += 1
             continue
@@ -200,19 +198,19 @@ def full_flow(type="original"):
     # press the button!
     enter_button = driver.find_element(By.XPATH, "//*[text()='Enter!']")
     enter_button.click()
-    move_receipt(receipt_path, type)
+    move_receipt(receipt_path)
     time.sleep(20)
     print("Form submitted")
     driver.close()
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        if sys.argv[1] in product_options:
-            full_flow(sys.argv[1])
-        else:
-            print("Invalid product type as argument - must be one of: ")
-            print(product_options.keys())
-            exit()
-    else:
-        full_flow()
-
+    # if len(sys.argv) > 1:
+    #     if sys.argv[1] in product_options:
+    #         full_flow(sys.argv[1])
+    #     else:
+    #         print("Invalid product type as argument - must be one of: ")
+    #         print(product_options.keys())
+    #         exit()
+    # else:
+    #     full_flow()
+    full_flow()

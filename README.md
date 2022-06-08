@@ -66,10 +66,5 @@ next occurrence of the specified time.
     python tt_time.py 03:11
 
 ## Specific flavours
-To apply with a specific flavour one needs to specify it as an argument in the command line
-
-    python tt_time.py HH:MM [flavour]
-    python tt_time.py 12:10 double
-    
-    python tt_submit.py [flavour]
-    python tt_submit.py double
+To accommodate for different flavours being bought, place the receipt in the relevant receipt folder. The program will
+dynamically recognise the flavour from a receipt's location; there is no need to explicitly state it.
