@@ -6,16 +6,6 @@ import schedule
 import sys
 import time
 
-product_options = {
-    "original": "Tim Tam Original",
-    "white": "Tim Tam White",
-    "dark": "Tim Tam Dark",
-    "double": "Tim Tam Double Coat",
-    "chewy-caramel": "Tim Tam Chewy Caramel",
-    "murray-caramel": "Tim Tam Murray River Salted Caramel"
-}
-
-
 def delayed_entry():
     tt_submit.full_flow()
     return schedule.CancelJob

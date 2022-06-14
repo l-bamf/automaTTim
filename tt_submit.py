@@ -17,6 +17,7 @@ import sys
 import re
 
 from selenium.webdriver.support.select import Select
+from selenium.webdriver.support.wait import WebDriverWait
 
 product_options = {
     "original": "Tim Tam Original",
@@ -65,8 +66,7 @@ def enter_product_details(driver) -> (bool, str):
         details = json.load(json_file)
         mobile_field.send_keys(details["mobile"])
 
-    product_select = Select(driver.find_element(By.ID, "what_did_you_purchase"))
-    product_select.select_by_value(product_options[type])
+
 
     shop_select = Select(driver.find_element(By.ID, "where_did_you_make_the_purchase"))
     shop_select.select_by_value("Coles-1")
@@ -85,11 +85,18 @@ def enter_product_details(driver) -> (bool, str):
         if len(valid_receipts) >= 1:
             parent_path = str(pathlib.Path().resolve()) + "\\receipts\\" + flavour + "\\"
             selected_receipt_path = parent_path + valid_receipts.pop()
+            product_select = Select(driver.find_element(By.ID, "what_did_you_purchase"))
+            product_select.select_by_value(product_options[flavour])
             break
 
     file_input = driver.find_element(By.ID, "receipt_upload")
     file_input.send_keys(selected_receipt_path)
-    time.sleep(10)
+    # time.sleep(10)
+    # wait until the upload completes, either successfully or not
+    wait = WebDriverWait(driver, 20)
+    wait.until(lambda driver: driver.find_element(By.XPATH, "//*[text()='Upload complete']") or
+                              driver.find_element(By.CSS_SELECTOR,
+                                 "button[class='cursor-pointer text-input-active hover:underline focus:ring-2 focus:ring-input-active file-upload-browse']"))
 
     upload_success = False
     try:
@@ -204,13 +211,4 @@ def full_flow():
     driver.close()
 
 if __name__ == "__main__":
-    # if len(sys.argv) > 1:
-    #     if sys.argv[1] in product_options:
-    #         full_flow(sys.argv[1])
-    #     else:
-    #         print("Invalid product type as argument - must be one of: ")
-    #         print(product_options.keys())
-    #         exit()
-    # else:
-    #     full_flow()
     full_flow()
