@@ -28,6 +28,16 @@ product_options = {
     "murray-caramel": "Tim Tam Murray River Salted Caramel"
 }
 
+retailer_options = {
+    "coles": "Coles-1",
+    "woolworths": "Woolworths-1",
+    "iga": "IGA",
+    "countdown": "Countdown-1",
+    "new-world": "New World-1",
+    "paknsave": "Pak'nSave",
+    "other": "Other-3"
+}
+
 accepted_file_types = (".JPG", ".PDF", ".PNG", ".JPEG")
 
 def pass_checklist(driver):
@@ -67,50 +77,66 @@ def enter_product_details(driver) -> (bool, str):
         mobile_field.send_keys(details["mobile"])
 
 
-
-    shop_select = Select(driver.find_element(By.ID, "where_did_you_make_the_purchase"))
-    shop_select.select_by_value("Coles-1")
-
     terms_box = driver.find_element(By.ID, "terms")
     terms_box.click()
 
+    upload_success = False
+    selected_receipt_path, flavour, retailer = find_receipt()
+
+    if selected_receipt_path:
+        product_select = Select(driver.find_element(By.ID, "what_did_you_purchase"))
+        product_select.select_by_value(product_options[flavour])
+
+        shop_select = Select(driver.find_element(By.ID, "where_did_you_make_the_purchase"))
+        shop_select.select_by_value(retailer_options[retailer])
+
+        file_input = driver.find_element(By.ID, "receipt_upload")
+        file_input.send_keys(selected_receipt_path)
+        # wait until the upload completes, either successfully or not, timeout after 30 seconds
+        wait = WebDriverWait(driver, 30)
+        wait.until(lambda driver: driver.find_element(By.XPATH, "//*[text()='Upload complete']") or
+                                  driver.find_element(By.CSS_SELECTOR,
+                                     "button[class='cursor-pointer text-input-active hover:underline focus:ring-2 focus:ring-input-active file-upload-browse']"))
+
+        try:
+            driver.find_element(By.XPATH, "//*[text()='Upload complete']")
+        except NoSuchElementException:
+            print("Upload failed!")
+            reset_button = driver.find_element(By.CSS_SELECTOR,
+                                     "button[class='cursor-pointer text-input-active hover:underline focus:ring-2 focus:ring-input-active file-upload-browse']")
+            reset_button.click()
+        else:
+            print("Upload succeeded")
+            upload_success = True
+
+    return upload_success, selected_receipt_path
+
+
+def find_receipt() -> (str, str, str):
+    """
+    Finds a receipt file, its flavour and retailer
+    :return:
+    """
     flavours = os.listdir("receipts")
     flavours.remove(".gitignore")
     flavours.remove("used_receipts")
     file_types_regex = "(.PNG|.JPG|.PDF|.JPEG)"
     selected_receipt_path = None
+    selected_flavour = None
     for flavour in flavours:
         sub_dirs = [dir for dir in os.listdir("receipts\\" + flavour)]
         valid_receipts = [sub_dir for sub_dir in sub_dirs if re.search(file_types_regex, sub_dir.upper())]
         if len(valid_receipts) >= 1:
             parent_path = str(pathlib.Path().resolve()) + "\\receipts\\" + flavour + "\\"
             selected_receipt_path = parent_path + valid_receipts.pop()
-            product_select = Select(driver.find_element(By.ID, "what_did_you_purchase"))
-            product_select.select_by_value(product_options[flavour])
+            selected_flavour = flavour
             break
-
-    file_input = driver.find_element(By.ID, "receipt_upload")
-    file_input.send_keys(selected_receipt_path)
-    # time.sleep(10)
-    # wait until the upload completes, either successfully or not
-    wait = WebDriverWait(driver, 20)
-    wait.until(lambda driver: driver.find_element(By.XPATH, "//*[text()='Upload complete']") or
-                              driver.find_element(By.CSS_SELECTOR,
-                                 "button[class='cursor-pointer text-input-active hover:underline focus:ring-2 focus:ring-input-active file-upload-browse']"))
-
-    upload_success = False
-    try:
-        driver.find_element(By.XPATH, "//*[text()='Upload complete']")
-    except NoSuchElementException:
-        print("Upload failed!")
-        reset_button = driver.find_element(By.CSS_SELECTOR,
-                                 "button[class='cursor-pointer text-input-active hover:underline focus:ring-2 focus:ring-input-active file-upload-browse']")
-        reset_button.click()
-    else:
-        print("Upload succeeded")
-        upload_success = True
-
-    return upload_success, selected_receipt_path
+    receipt_retailer = "coles"  # default retailer
+    for retailer in retailer_options.keys():
+        if retailer in selected_receipt_path:
+            receipt_retailer = retailer
+            break
+    return selected_receipt_path, selected_flavour, receipt_retailer
 
 
 def enter_personal_details(driver):
@@ -206,9 +232,12 @@ def full_flow():
     enter_button = driver.find_element(By.XPATH, "//*[text()='Enter!']")
     enter_button.click()
     move_receipt(receipt_path)
-    time.sleep(20)
+    time.sleep(10)
     print("Form submitted")
     driver.close()
 
 if __name__ == "__main__":
-    full_flow()
+    if not find_receipt()[0]:
+        print("No valid receipt found")
+    else:
+        full_flow()
