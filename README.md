@@ -1,6 +1,9 @@
 # AutomaTTim
 Using my software skills for [evil](https://www.youtube.com/watch?v=MNt3-rX6pbo)...
 
+This project is no longer maintained as of 16/11/2022. 
+The chromedriver will gradually drift out of date, and the promotional website is no longer accessible.
+
 ## Premise
 Arnotts is currently running a promotional campaign
 wherein three specially marked TimTam packets contain a little lamp worth one wish ($100,000), ala Aladdin.
@@ -20,18 +23,18 @@ Profit is the goal but increasing my odds means, in the worst case, a packet is 
 Of course, I don't actually want to apply during those hours (hopefully nobody does) so the goal of this project is 
 to automate submission while I sleep.
 
-![alt text](https://i.pinimg.com/736x/e8/e7/4d/e8e74d6f2218e8c7a0f138b9e2d6ff9a.jpg)
+![Promotional poster](https://i.pinimg.com/736x/e8/e7/4d/e8e74d6f2218e8c7a0f138b9e2d6ff9a.jpg)
 
 # Installation
 ## Cloning
 The repository can be cloned to your local machine by running in command line. It can also be directly downloaded from
-GitHub/
+GitHub
 
     git clone https://github.com/l-bamf/automaTTim
 ## Dependencies
-#### Browser
-This project depends on Chrome Version 103.0.5060.66 (Official Build) (64-bit) being installed in the default directory.
-This is the version the project's chromedriver expects.
+#### Browser and Driver
+This project depends on Chrome Version 103.0.5060.53 (Official Build) (64-bit) being installed in the default directory.
+This is the version the project's chromedriver expects. Download a new one and place it in the same folder under the same name to update.
 #### Python
 The Python files were written and tested with 3.10.4. [Install Python](https://www.python.org/downloads/)
 #### Python Libraries
